@@ -48,11 +48,3 @@ evaluate (Alias n e) = do
 evaluate e = do
   as <- M.toList <$> get
   return $ foldl (uncurry . alphaConversion) e as
-
--- evaluate (Alias n e) =
---   let (_, e')  = evaluate as e
---       as' = M.insert n e' as
---    in (as', e')
--- evaluate as e =
---   let e' = foldl (\ast (alias, value) -> alphaConversion ast alias value) e (M.toList as)
---    in (as, reduce e')
