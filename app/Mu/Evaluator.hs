@@ -1,5 +1,6 @@
-module Mu.Evaluator (Aliases, evaluate, reduce, alphaConversion, betaReduction) where
+module Mu.Evaluator (Evaluator, Aliases, evaluate, reduce, alphaConversion, betaReduction) where
 
+import Control.Monad.State
 import qualified Data.Map.Strict as M
 import Mu.Parser
 
@@ -37,11 +38,21 @@ reduce ast =
 
 type Aliases = M.Map Identifier AST
 
-evaluate :: Aliases -> AST -> (Aliases, AST)
-evaluate as (Alias n e) =
-  let (_, e')  = evaluate as e
-      as' = M.insert n e' as
-   in (as', e')
-evaluate as e =
-  let e' = foldl (\ast (alias, value) -> alphaConversion ast alias value) e (M.toList as)
-   in (as, reduce e')
+type Evaluator = State Aliases AST
+
+evaluate :: AST -> Evaluator
+evaluate (Alias n e) = do
+  e' <- evaluate e
+  modify $ M.insert n e'
+  return e'
+evaluate e = do
+  as <- M.toList <$> get
+  return $ foldl (uncurry . alphaConversion) e as
+
+-- evaluate (Alias n e) =
+--   let (_, e')  = evaluate as e
+--       as' = M.insert n e' as
+--    in (as', e')
+-- evaluate as e =
+--   let e' = foldl (\ast (alias, value) -> alphaConversion ast alias value) e (M.toList as)
+--    in (as, reduce e')

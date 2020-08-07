@@ -1,6 +1,7 @@
 module Main (main) where
 
 import System.IO
+import Control.Monad.State
 import qualified Data.Map.Strict as M
 import qualified Data.Text as T
 import Text.Megaparsec
@@ -15,7 +16,7 @@ run as source =
       putStrLn $ errorBundlePretty e
       return as
     Right ast -> do
-      let (as', res) = evaluate as ast
+      let (res, as') = runState (evaluate ast) as
       putStrLn . T.unpack $ prettyAST res
       return as'
 
