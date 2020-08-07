@@ -45,19 +45,23 @@ parenthesized p = do
   _ <- symbol ")"
   return v
 
--- | Parse an identifier
-identifier :: Parser Identifier
-identifier = T.pack <$> lexeme (M.some alphaNumChar)
+-- | Parse an identifier for an alias.
+aliasIdent :: Parser Identifier
+aliasIdent = T.pack <$> lexeme (M.some alphaNumChar)
+
+-- | Parse an identifier for a variable.
+varIdent :: Parser Identifier
+varIdent = T.singleton <$> lexeme letterChar
 
 -- | Parse a variable reference.
 variable :: Parser AST
-variable = Variable <$> identifier
+variable = Variable <$> aliasIdent
 
 -- | Parse an abstraction (function definition).
 abstraction :: Parser AST
 abstraction = do
   _ <- symbol "\\" <|> symbol "λ"
-  ident <- identifier
+  ident <- varIdent
   _ <- symbol "."
   body <- application
   return $ Abstraction ident body
@@ -77,7 +81,7 @@ term = choice
 aliased :: Parser Aliased
 aliased = do
   alias <- optional . try $ do
-    ident <- identifier
+    ident <- aliasIdent
     _ <- symbol "="
     return ident
   expr <- application

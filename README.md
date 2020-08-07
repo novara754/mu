@@ -12,13 +12,14 @@ Features:
 ## Grammar
 ```
 program     ::= alias | application
-alias       ::= IDENT "=" application
+alias       ::= ALIASIDENT "=" application
 application ::= (term)* | "(" application ")"
 term        ::= variable | abstraction
-variable    ::= IDENT
-abstraction ::= ("\" | "λ") IDENT "." application
+variable    ::= ALIASIDENT
+abstraction ::= ("\" | "λ") VARIDENT "." application
 
-IDENT       ::= _any series of alpha numeric characters_
+VARIDENT    ::= _any single letter_
+ALIASIDENT  ::= _any series of alpha numeric characters_
 ```
 
 Whitespace after any token is ignored.
