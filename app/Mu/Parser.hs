@@ -2,8 +2,9 @@ module Mu.Parser (Identifier, AST(..), program) where
 
 import Data.Void
 import qualified Data.Text as T
-import Text.Megaparsec
+import Text.Megaparsec as M
 import Text.Megaparsec.Char
+import Control.Monad.Combinators.NonEmpty as NE
 import qualified Text.Megaparsec.Char.Lexer as L
 
 type Parser = Parsec Void T.Text
@@ -43,7 +44,7 @@ parenthesized p = do
 
 -- | Parse an identifier
 identifier :: Parser Identifier
-identifier = T.pack <$> lexeme (some alphaNumChar)
+identifier = T.pack <$> lexeme (M.some alphaNumChar)
 
 -- | Parse a variable reference.
 variable :: Parser AST
@@ -60,7 +61,7 @@ abstraction = do
 
 -- | Parse a function application.
 application :: Parser AST
-application = parenthesized application <|> foldl1 Application <$> some term
+application = parenthesized application <|> foldl1 Application <$> NE.some term
 
 -- | Parse a variable or abstraction
 term :: Parser AST

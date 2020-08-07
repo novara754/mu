@@ -24,7 +24,8 @@ common common-options
                        megaparsec,
                        text,
                        containers,
-                       mtl
+                       mtl,
+                       parser-combinators
 
   default-extensions:  OverloadedStrings
 
