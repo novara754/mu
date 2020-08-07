@@ -45,7 +45,7 @@ abstraction = do
   _ <- symbol "\\"
   ident <- identifier
   _ <- symbol "."
-  body <- term
+  body <- application
   return $ Abstraction ident body
 
 -- | Parse a function application.
