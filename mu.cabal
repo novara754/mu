@@ -46,6 +46,8 @@ executable mu
   hs-source-dirs:      app
   main-is:             Main.hs
   other-modules:       Mu.Parser
+                       Mu.Evaluator
+                       Mu.Util
   ghc-options:         -threaded
                        -rtsopts
                        -with-rtsopts=-N

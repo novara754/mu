@@ -4,12 +4,14 @@ import System.IO
 import qualified Data.Text as T
 import Text.Megaparsec
 import Mu.Parser
+import Mu.Evaluator
+import Mu.Util
 
 parseProgram :: T.Text -> IO ()
 parseProgram source =
   case runParser program "repl" source of
     Left e -> putStrLn $ errorBundlePretty e
-    Right ast -> print ast
+    Right ast -> putStrLn . T.unpack . prettyAST $ reduce ast
 
 repl :: IO ()
 repl = do

@@ -1,4 +1,4 @@
-module Mu.Parser (Parser, program) where
+module Mu.Parser (Identifier, AST(..), program) where
 
 import Data.Void
 import qualified Data.Text as T
@@ -16,7 +16,7 @@ data AST
   = Variable Identifier        -- ^ Reference to a variable
   | Abstraction Identifier AST -- ^ Function definition with a bound variable and body
   | Application AST AST        -- ^ Function application
-  deriving (Show)
+  deriving (Show, Eq)
 
 -- | Parser for skipping whitespace and line comments
 sc :: Parser ()
