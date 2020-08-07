@@ -1,5 +1,6 @@
-module Mu.Evaluator (reduce, alphaConversion, betaReduction) where
+module Mu.Evaluator (Aliases, evaluate, reduce, alphaConversion, betaReduction) where
 
+import qualified Data.Map.Strict as M
 import Mu.Parser
 
 alphaConversion :: AST -> Identifier -> AST -> AST
@@ -15,6 +16,7 @@ alphaConversion (Abstraction n b) v r
   | otherwise =
     let b' = alphaConversion b v r
      in Abstraction n b'
+alphaConversion (Alias _ _) _ _ = error "unreachable"
 
 betaReduction :: AST -> AST
 betaReduction (Variable v) = Variable v
@@ -23,6 +25,7 @@ betaReduction (Application f a) =
   case betaReduction f of
     Abstraction v b -> alphaConversion b v a
     x               -> Application x (betaReduction a)
+betaReduction (Alias _ _) = error "unreachable"
 
 -- | Recursively reduce the tree until no more changes can be made.
 reduce :: AST -> AST
@@ -31,3 +34,14 @@ reduce ast =
    in if ast /= ast'
         then reduce ast'
         else ast
+
+type Aliases = M.Map Identifier AST
+
+evaluate :: Aliases -> AST -> (Aliases, AST)
+evaluate as (Alias n e) =
+  let (_, e')  = evaluate as e
+      as' = M.insert n e' as
+   in (as', e')
+evaluate as e =
+  let e' = foldl (\ast (alias, value) -> alphaConversion ast alias value) e (M.toList as)
+   in (as, reduce e')

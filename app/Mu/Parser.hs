@@ -16,6 +16,7 @@ data AST
   = Variable Identifier        -- ^ Reference to a variable
   | Abstraction Identifier AST -- ^ Function definition with a bound variable and body
   | Application AST AST        -- ^ Function application
+  | Alias Identifier AST       -- ^ Create a new named alias for an expression
   deriving (Show, Eq)
 
 -- | Parser for skipping whitespace and line comments
@@ -31,9 +32,18 @@ lexeme = L.lexeme sc
 symbol :: T.Text -> Parser T.Text
 symbol = L.symbol sc
 
+-- | Turns any parser into the same parser that requires parentheses around its
+--   input.
+parenthesized :: Parser a -> Parser a
+parenthesized p = do
+  _ <- symbol "("
+  v <- p
+  _ <- symbol ")"
+  return v
+
 -- | Parse an identifier
 identifier :: Parser Identifier
-identifier = T.singleton <$> lexeme letterChar
+identifier = T.pack <$> lexeme (some alphaNumChar)
 
 -- | Parse a variable reference.
 variable :: Parser AST
@@ -59,18 +69,16 @@ term = choice
   , parenthesized abstraction
   ]
 
--- | Turns any parser into the same parser that requires parentheses around its
---   input.
-parenthesized :: Parser a -> Parser a
-parenthesized p = do
-  _ <- symbol "("
-  v <- p
-  _ <- symbol ")"
-  return v
+alias :: Parser AST
+alias = do
+  ident <- identifier
+  _ <- symbol "="
+  expr <- application
+  return $ Alias ident expr
 
 -- | Parse a whole lambda calculus program (expression followed by eof).
 program :: Parser AST
 program = do
-  ast <- application
+  ast <- try alias <|> application
   _ <- eof
   return ast

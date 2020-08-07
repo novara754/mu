@@ -1,25 +1,31 @@
 module Main (main) where
 
 import System.IO
+import qualified Data.Map.Strict as M
 import qualified Data.Text as T
 import Text.Megaparsec
 import Mu.Parser
 import Mu.Evaluator
 import Mu.Util
 
-parseProgram :: T.Text -> IO ()
-parseProgram source =
+run :: Aliases -> T.Text -> IO Aliases
+run as source =
   case runParser program "repl" source of
-    Left e -> putStrLn $ errorBundlePretty e
-    Right ast -> putStrLn . T.unpack . prettyAST $ reduce ast
+    Left e -> do
+      putStrLn $ errorBundlePretty e
+      return as
+    Right ast -> do
+      let (as', res) = evaluate as ast
+      putStrLn . T.unpack $ prettyAST res
+      return as'
 
-repl :: IO ()
-repl = do
+repl :: Aliases -> IO ()
+repl as = do
   putStr "> "
   hFlush stdout
   input <- getLine
-  parseProgram $ T.pack input
-  repl
+  as' <- run as $ T.pack input
+  repl as'
 
 main :: IO ()
-main = repl
+main = repl M.empty
