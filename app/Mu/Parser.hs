@@ -52,7 +52,7 @@ variable = Variable <$> identifier
 -- | Parse an abstraction (function definition).
 abstraction :: Parser AST
 abstraction = do
-  _ <- symbol "\\"
+  _ <- symbol "\\" <|> symbol "λ"
   ident <- identifier
   _ <- symbol "."
   body <- application
