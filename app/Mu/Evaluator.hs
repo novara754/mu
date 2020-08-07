@@ -17,7 +17,6 @@ alphaConversion (Abstraction n b) v r
   | otherwise =
     let b' = alphaConversion b v r
      in Abstraction n b'
-alphaConversion (Alias n e) v r = Alias n (alphaConversion e v r)
 
 betaReduction :: AST -> AST
 betaReduction (Variable v) = Variable v
@@ -26,7 +25,6 @@ betaReduction (Application f a) =
   case betaReduction f of
     Abstraction v b -> alphaConversion b v a
     x               -> Application x (betaReduction a)
-betaReduction (Alias n e) = Alias n (betaReduction e)
 
 -- | Recursively reduce the tree until no more changes can be made.
 reduce :: AST -> AST
@@ -40,12 +38,14 @@ type Aliases = M.Map Identifier AST
 
 type Evaluator = State Aliases AST
 
-evaluate :: AST -> Evaluator
-evaluate e = do
+evaluate :: Aliased -> Evaluator
+evaluate (Aliased n e) = do
+  e' <- eval e
+  modify $ M.insert n e'
+  return e'
+evaluate (Unaliased e) = eval e
+
+eval :: AST -> Evaluator
+eval e = do
   as <- M.toList <$> get
-  let e' = foldl (uncurry . alphaConversion) e as
-  case reduce e' of
-    Alias n e'' -> do
-      modify $ M.insert n e''
-      return e''
-    e'' -> return e''
+  return . reduce $ foldl (uncurry . alphaConversion) e as

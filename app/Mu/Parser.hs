@@ -1,4 +1,4 @@
-module Mu.Parser (Identifier, AST(..), program) where
+module Mu.Parser (Identifier, Aliased(..), AST(..), program) where
 
 import Data.Void
 import qualified Data.Text as T
@@ -12,12 +12,15 @@ type Parser = Parsec Void T.Text
 -- | An identifier for a bound or free variable.
 type Identifier = T.Text
 
+data Aliased
+  = Aliased Identifier AST
+  | Unaliased AST
+
 -- | Represents the possible constructs of the language.
 data AST
   = Variable Identifier        -- ^ Reference to a variable
   | Abstraction Identifier AST -- ^ Function definition with a bound variable and body
   | Application AST AST        -- ^ Function application
-  | Alias Identifier AST       -- ^ Create a new named alias for an expression
   deriving (Show, Eq)
 
 -- | Parser for skipping whitespace and line comments
@@ -71,16 +74,18 @@ term = choice
   , parenthesized application
   ]
 
-alias :: Parser AST
-alias = do
-  ident <- identifier
-  _ <- symbol "="
+aliased :: Parser Aliased
+aliased = do
+  alias <- optional . try $ do
+    ident <- identifier
+    _ <- symbol "="
+    return ident
   expr <- application
-  return $ Alias ident expr
+  return $ maybe (Unaliased expr) (\a -> Aliased a expr) alias
 
 -- | Parse a whole lambda calculus program (expression followed by eof).
-program :: Parser AST
+program :: Parser Aliased
 program = do
-  ast <- try alias <|> application
+  ast <- aliased
   _ <- eof
   return ast
