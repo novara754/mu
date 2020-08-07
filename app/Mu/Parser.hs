@@ -60,13 +60,13 @@ abstraction = do
 
 -- | Parse a function application.
 application :: Parser AST
-application = foldl1 Application <$> some term
+application = parenthesized application <|> foldl1 Application <$> some term
 
 -- | Parse a variable or abstraction
 term :: Parser AST
 term = choice
   [ variable
-  , parenthesized abstraction
+  , abstraction
   ]
 
 alias :: Parser AST
