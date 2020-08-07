@@ -65,8 +65,9 @@ application = parenthesized application <|> foldl1 Application <$> some term
 -- | Parse a variable or abstraction
 term :: Parser AST
 term = choice
-  [ variable
-  , abstraction
+  [ abstraction
+  , variable
+  , parenthesized application
   ]
 
 alias :: Parser AST
