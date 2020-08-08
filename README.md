@@ -13,7 +13,7 @@ Features:
 ```
 input       ::= expr (";" expr)*
 expr        ::= alias | application
-alias       ::= ALIASIDENT "=" application
+alias       ::= ALIASIDENT ":=" application
 application ::= (term)* | "(" application ")"
 term        ::= variable | abstraction
 variable    ::= VARIDENT | ALIASIDENT
@@ -29,15 +29,15 @@ Comments can be started with `--`.
 ## Examples
 
 ```
-> ID = \x.x -- The identity function.
+> ID := \x.x -- The identity function.
 \x.x
 > ID a
 a
-> AND = \p.\q.p q p -- Boolean and.
+> AND := \p.\q.p q p -- Boolean and.
 \p.\q.p q p
-> TRUE = \x.\y.x -- Boolean true.
+> TRUE := \x.\y.x -- Boolean true.
 \x.\y.x
-> FALSE = \x.\y.y -- Boolean false.
+> FALSE := \x.\y.y -- Boolean false.
 \x.\y.y
 > AND TRUE FALSE ; AND TRUE TRUE
 \x.\y.y ; \x.\y.x

@@ -84,7 +84,7 @@ aliased :: Parser Aliased
 aliased = do
   alias <- optional . try $ do
     ident <- aliasIdent
-    _ <- symbol "="
+    _ <- symbol ":="
     return ident
   expr <- application
   return $ maybe (Unaliased expr) (\a -> Aliased a expr) alias
