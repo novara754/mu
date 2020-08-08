@@ -11,7 +11,8 @@ Features:
 
 ## Grammar
 ```
-program     ::= alias | application
+input       ::= expr (";" expr)*
+expr        ::= alias | application
 alias       ::= ALIASIDENT "=" application
 application ::= (term)* | "(" application ")"
 term        ::= variable | abstraction
@@ -38,10 +39,8 @@ a
 \x.\y.x
 > FALSE = \x.\y.y -- Boolean false.
 \x.\y.y
-> AND TRUE FALSE
-\x.\y.y
-> AND TRUE TRUE
-\x.\y.x
+> AND TRUE FALSE ; AND TRUE TRUE
+\x.\y.y ; \x.\y.x
 ```
 
 ## Building & Running

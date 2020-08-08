@@ -90,8 +90,8 @@ aliased = do
   return $ maybe (Unaliased expr) (\a -> Aliased a expr) alias
 
 -- | Parse a whole lambda calculus program (expression followed by eof).
-program :: Parser Aliased
+program :: Parser [Aliased]
 program = do
-  ast <- aliased
+  exprs <- sepBy aliased (symbol ";")
   _ <- eof
-  return ast
+  return exprs
