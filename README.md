@@ -23,7 +23,7 @@ ALIASIDENT  ::= _any series of alpha numeric characters_
 ```
 
 Whitespace after any token is ignored.
-You can also put comments at the end of your input by with `--`.
+Comments can be started with `--`.
 
 ## Examples
 
