@@ -15,10 +15,10 @@ program     ::= alias | application
 alias       ::= ALIASIDENT "=" application
 application ::= (term)* | "(" application ")"
 term        ::= variable | abstraction
-variable    ::= ALIASIDENT
+variable    ::= VARIDENT | ALIASIDENT
 abstraction ::= ("\" | "λ") VARIDENT "." application
 
-VARIDENT    ::= _any single letter_
+VARIDENT    ::= _any single lowercase letter_
 ALIASIDENT  ::= _any series of alpha numeric characters_
 ```
 

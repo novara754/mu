@@ -51,11 +51,11 @@ aliasIdent = T.pack <$> lexeme (M.some alphaNumChar)
 
 -- | Parse an identifier for a variable.
 varIdent :: Parser Identifier
-varIdent = T.singleton <$> lexeme letterChar
+varIdent = T.singleton <$> lexeme (lowerChar <?> "a lowercase character for variables")
 
 -- | Parse a variable reference.
 variable :: Parser AST
-variable = Variable <$> aliasIdent
+variable = Variable <$> (aliasIdent <|> varIdent)
 
 -- | Parse an abstraction (function definition).
 abstraction :: Parser AST
