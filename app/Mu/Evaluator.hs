@@ -34,10 +34,14 @@ reduce ast =
         then reduce ast'
         else ast
 
+-- | Map to retrieve an expression by its alias.
 type Aliases = M.Map Identifier AST
 
+-- | Evaluator state for keeping track of known aliases.
 type Evaluator = State Aliases AST
 
+-- | Reduces an expression to normal form. Saves it in the list of known
+--   aliases if an alias was given.
 evaluate :: Aliased -> Evaluator
 evaluate (Aliased n e) = do
   e' <- eval e
@@ -45,6 +49,7 @@ evaluate (Aliased n e) = do
   return e'
 evaluate (Unaliased e) = eval e
 
+-- | Internal function to evaluate (reduce to normal form) an expression
 eval :: AST -> Evaluator
 eval e = do
   as <- M.toList <$> get

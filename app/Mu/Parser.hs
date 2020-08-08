@@ -12,6 +12,8 @@ type Parser = Parsec Void T.Text
 -- | An identifier for a bound or free variable.
 type Identifier = T.Text
 
+-- | Represents input to the REPL which is either an aliase lambda calculus expression
+--   or an unaliased expression.
 data Aliased
   = Aliased Identifier AST
   | Unaliased AST
