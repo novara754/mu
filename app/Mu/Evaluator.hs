@@ -1,35 +1,35 @@
-module Mu.Evaluator (Evaluator, Aliases, evaluate, reduce, alphaConversion, betaReduction) where
+module Mu.Evaluator (Evaluator, Aliases, evaluate) where
 
 import Control.Monad.State
 import qualified Data.Map.Strict as M
 import Mu.Parser
 
-alphaConversion :: AST -> Identifier -> AST -> AST
-alphaConversion (Variable n) v r
+alphaConvert :: AST -> Identifier -> AST -> AST
+alphaConvert (Variable n) v r
   | n == v    = r
   | otherwise = Variable n
-alphaConversion (Application f a) v r =
-  let f' = alphaConversion f v r
-      a' = alphaConversion a v r
+alphaConvert (Application f a) v r =
+  let f' = alphaConvert f v r
+      a' = alphaConvert a v r
    in Application f' a'
-alphaConversion (Abstraction n b) v r
+alphaConvert (Abstraction n b) v r
   | n == v    = Abstraction n b
   | otherwise =
-    let b' = alphaConversion b v r
+    let b' = alphaConvert b v r
      in Abstraction n b'
 
-betaReduction :: AST -> AST
-betaReduction (Variable v) = Variable v
-betaReduction (Abstraction v b) = Abstraction v (betaReduction b)
-betaReduction (Application f a) =
-  case betaReduction f of
-    Abstraction v b -> alphaConversion b v a
-    x               -> Application x (betaReduction a)
+betaReduce :: AST -> AST
+betaReduce (Variable v) = Variable v
+betaReduce (Abstraction v b) = Abstraction v (betaReduce b)
+betaReduce (Application f a) =
+  case betaReduce f of
+    Abstraction v b -> alphaConvert b v a
+    x               -> Application x (betaReduce a)
 
 -- | Recursively reduce the tree until no more changes can be made.
 reduce :: AST -> AST
 reduce ast =
-  let ast' = betaReduction ast
+  let ast' = betaReduce ast
    in if ast /= ast'
         then reduce ast'
         else ast
@@ -53,4 +53,4 @@ evaluate (Unaliased e) = eval e
 eval :: AST -> Evaluator
 eval e = do
   as <- M.toList <$> get
-  return . reduce $ foldl (uncurry . alphaConversion) e as
+  return . reduce $ foldl (uncurry . alphaConvert) e as
